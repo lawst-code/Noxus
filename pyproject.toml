@@ -8,11 +8,14 @@ version = "0.1.0"
 description = "Basic Noxus CLI tool"
 readme = "README.md"
 requires-python = ">=3.7"
-dependencies = []
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0"
+]
 
 [project.scripts]
 noxus = "noxus_cli.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["noxus_cli*"]
+include = ["noxus_cli*", "http_server*"]

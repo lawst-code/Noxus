@@ -1,6 +1,8 @@
 import argparse
 import importlib.resources as resources
 
+from http_server.server import start_server
+
 
 def init_command(args):
     """Handle the init command"""
@@ -19,6 +21,14 @@ def init_command(args):
     
     print(f"Created {filename} in current directory")
 
+def serve_command(args):
+    """Handle the serve command"""
+    print(f"Starting Noxus API server on {args.host}:{args.port}")
+    print(f"OpenAPI documentation available at:")
+    print(f"  - Swagger UI: http://{args.host}:{args.port}/docs")
+    print(f"  - ReDoc: http://{args.host}:{args.port}/redoc")
+    start_server(host=args.host, port=args.port, reload=args.reload)
+
 def main():
     parser = argparse.ArgumentParser(description="Basic Noxus CLI tool")
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
@@ -27,6 +37,13 @@ def main():
     init_parser = subparsers.add_parser('init', help='Initialize a new plugin')
     init_parser.add_argument('plugin_name', help='Name of the plugin to be created')
     init_parser.set_defaults(func=init_command)
+    
+    # "serve" command
+    serve_parser = subparsers.add_parser('serve', help='Start the API server')
+    serve_parser.add_argument('--host', default='127.0.0.1', help='Host to bind to (default: 127.0.0.1)')
+    serve_parser.add_argument('--port', type=int, default=8000, help='Port to bind to (default: 8000)')
+    serve_parser.add_argument('--reload', action='store_true', help='Enable auto-reload for development')
+    serve_parser.set_defaults(func=serve_command)
 
     args = parser.parse_args()
     
