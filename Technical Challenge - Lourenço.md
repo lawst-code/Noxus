@@ -16,7 +16,7 @@ The final system will support a containerized HTTP server that serves installed 
 
 ## 2. Specification Overview
 
-Plugins are defined my two main artifacts:
+Plugins are defined by two main artifacts:
 
 - A declaration of the plugin in yaml format. We separate the plugin definition in two sections:
   - A base section with core information about the plugin
@@ -69,9 +69,9 @@ class SentimentPlugin(Plugin):
 
 ### Remote Plugin API
 
-A plugin that is served expose two endpoints to be used by the main platform:
+A plugin that is served exposes two endpoints to be used by the main platform:
 
-- `GET /{node_name}/manifest` - Returns the plugin schema and the schema of the each Node
+- `GET /{node_name}/manifest` - Returns the plugin schema and the schema of each Node
 - `POST /{node_name}/run` - Executes a specific node with provided inputs
   - Inputs are provided in the body with the structure
   ```python

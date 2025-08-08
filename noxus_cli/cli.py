@@ -1,8 +1,23 @@
 import argparse
+import importlib.resources as resources
+
 
 def init_command(args):
     """Handle the init command"""
-    print(f"Initializing plugin with name: {args.plugin_name}")
+    plugin_name = args.plugin_name
+    filename = f"{plugin_name}.yaml"
+    
+    try:
+        template_content = (resources.files('noxus_cli') / 'plugin_template.yaml').read_text()
+        yaml_content = template_content.format(plugin_name=plugin_name)
+    except Exception as e:
+        print(f"Error reading template file: {e}")
+        return
+    
+    with open(filename, 'w') as f:
+        f.write(yaml_content)
+    
+    print(f"Created {filename} in current directory")
 
 def main():
     parser = argparse.ArgumentParser(description="Basic Noxus CLI tool")

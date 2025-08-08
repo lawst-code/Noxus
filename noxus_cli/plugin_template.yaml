@@ -1,0 +1,8 @@
+#base
+name: {plugin_name}
+version: 0.1.0
+description: "A test plugin"
+entrypoint: {plugin_name}
+# extensions
+
+

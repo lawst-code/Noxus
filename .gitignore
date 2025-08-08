@@ -8,5 +8,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Notes
+# Notes & Docs
 notes.txt
+test-plugin/
