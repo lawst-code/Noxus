@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, get_type_hints
+from typing import get_type_hints
 
 import uvicorn
 from fastapi import FastAPI
