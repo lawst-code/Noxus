@@ -114,6 +114,18 @@ async def manifest():
     """
 
 
+@app.post("/{node_name}/run")
+async def run_node(node_name: str):
+    """
+    POST endpoint to run a node
+    """
+
+    if node_name not in [node.name for node in mock_backend.nodes()]:
+        return {"message": f"Node {node_name} not found", "status": "error"}
+    else:
+        return {"message": f"Running node: {node_name}", "status": "success"}
+
+
 def start_server(host: str = "127.0.0.1", port: int = 8000, reload: bool = True):
     """
     Start the FastAPI server
