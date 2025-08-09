@@ -1,14 +1,30 @@
-from typing import Dict
 from abc import ABC, abstractmethod
+from typing import Dict
 
 
 class Node(ABC):
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def title(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def description(self) -> str:
+        pass
+
     @abstractmethod
     def call(self, arg1: str, arg2: str) -> Dict:
         pass
 
 
 class ExampleNode(Node):
+    name = "example-node"
     title = "Node Title"
     description = "Node Description"
 
@@ -18,6 +34,7 @@ class ExampleNode(Node):
 
 
 class SentimentNode(Node):
+    name = "sentiment-node"
     title = "Sentiment Analysis"
     description = "Analyze text sentiment"
 
