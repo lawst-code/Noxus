@@ -4,9 +4,9 @@ from typing import Any, Dict, get_type_hints
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 
-from noxus_cli.plugin import SentimentPlugin
+from noxus.plugins import SentimentPlugin
 
 
 class NodeRunRequest(BaseModel):

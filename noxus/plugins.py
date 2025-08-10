@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
-from noxus_cli.nodes.nodes import ExampleNode, Node, SentimentNode
+
+from .nodes import ExampleNode, Node, SentimentNode
 
 
 class Plugin(ABC):
