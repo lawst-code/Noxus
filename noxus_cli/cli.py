@@ -26,11 +26,15 @@ def init_command(args):
 
 def serve_command(args):
     """Handle the serve command"""
+    plugins_dir = getattr(args, "plugins_dir", "plugins/")
+
     print(f"Starting Noxus API server on {args.host}:{args.port}")
+    print(f"Loading plugins from: {plugins_dir}")
     print("OpenAPI documentation available at:")
     print(f"  - Swagger UI: http://{args.host}:{args.port}/docs")
     print(f"  - ReDoc: http://{args.host}:{args.port}/redoc")
-    start_server(host=args.host, port=args.port)
+
+    start_server(host=args.host, port=args.port, plugins_dir=plugins_dir)
 
 
 def main():
@@ -49,6 +53,11 @@ def main():
     )
     serve_parser.add_argument(
         "--port", type=int, default=8000, help="Port to bind to (default: 8000)"
+    )
+    serve_parser.add_argument(
+        "--plugins-dir",
+        default="plugins/",
+        help="Directory to load plugins from (default: plugins/)",
     )
     serve_parser.set_defaults(func=serve_command)
 

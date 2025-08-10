@@ -18,4 +18,4 @@ noxus = "noxus_cli.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["noxus_cli*", "http_server*"]
+include = ["noxus_cli*", "http_server*", "domain*"]

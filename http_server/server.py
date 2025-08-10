@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from noxus.plugins import SentimentPlugin
+from .plugin_loader import PluginLoader
 
 
 class NodeRunRequest(BaseModel):
@@ -74,7 +74,14 @@ def get_node_inputs_json(node) -> str:
     return f'{{\n  "inputs": {{\n{inputs_content}\n  }}\n}}'
 
 
-mock_backend = SentimentPlugin()
+# Initialize plugin loader and load all plugins
+plugin_loader = PluginLoader(["plugins/"])
+all_plugins = plugin_loader.load_all_plugins()
+all_nodes = plugin_loader.get_all_nodes()
+
+print(f"Loaded {len(all_nodes)} nodes from {len(all_plugins)} plugins")
+for node_name in all_nodes.keys():
+    print(f"  - {node_name}")
 
 # Initialize FastAPI app with OpenAPI documentation
 app = FastAPI(
@@ -111,22 +118,38 @@ async def root():
 
 @app.get("/manifest", response_class=HTMLResponse)
 async def manifest():
-    """Simple manifest endpoint"""
-    nodes = mock_backend.nodes() if hasattr(mock_backend, "nodes") else []
+    """Dynamic manifest endpoint showing all loaded plugins and nodes"""
+    plugin_info = plugin_loader.get_plugin_info()
 
-    node_list = ""
-    for node in nodes:
-        title = getattr(node, "title", "Unknown")
-        description = getattr(node, "description", "No description")
-        inputs_json = get_node_inputs_json(node)
-        node_list += (
-            f"<li><strong>{title}</strong> - {description}<pre>{inputs_json}</pre></li>"
-        )
+    plugins_html = ""
+    for plugin in plugin_info:
+        node_list = ""
+        for node in plugin["nodes"]:
+            node_obj = all_nodes.get(node["name"])
+            if node_obj:
+                inputs_json = get_node_inputs_json(node_obj)
+                node_list += f"""
+                <li>
+                    <strong>{node["title"]}</strong> (name: {node["name"]})
+                    <br>{node["description"]}
+                    <pre>{inputs_json}</pre>
+                </li>
+                """
 
-    if not node_list:
-        node_list = "<li>No nodes available</li>"
+        if not node_list:
+            node_list = "<li>No nodes available</li>"
 
-    plugin_title = getattr(mock_backend, "title", "Unknown Plugin")
+        plugins_html += f"""
+        <div style="margin-bottom: 30px; border: 1px solid #ccc; padding: 15px;">
+            <h2>{plugin["title"]}</h2>
+            <p><em>{plugin["description"]}</em></p>
+            <h3>Nodes ({len(plugin["nodes"])}):</h3>
+            <ul>{node_list}</ul>
+        </div>
+        """
+
+    if not plugins_html:
+        plugins_html = "<p>No plugins loaded</p>"
 
     return f"""
     <html>
@@ -135,10 +158,9 @@ async def manifest():
         </head>
         <body>
             <h1>Plugin Manifest</h1>
-            <h2>Plugin: {plugin_title}</h2>
-            <h3>Nodes:</h3>
-            <ul>{node_list}</ul>
-            <a href="/">Back</a>
+            <p>Loaded {len(all_plugins)} plugins with {len(all_nodes)} total nodes</p>
+            {plugins_html}
+            <a href="/">← Back to Home</a>
         </body>
     </html>
     """
@@ -149,18 +171,15 @@ async def run_node(node_name: str, request_data: NodeRunRequest):
     """
     Execute a node by name with provided arguments
     """
-    # Get all available nodes
-    nodes = mock_backend.nodes() if hasattr(mock_backend, "nodes") else []
-
-    # Find the node with matching name
-    target_node = None
-    for node in nodes:
-        if getattr(node, "name", None) == node_name:
-            target_node = node
-            break
+    # Find the node in our loaded nodes
+    target_node = all_nodes.get(node_name)
 
     if target_node is None:
-        raise HTTPException(status_code=404, detail=f"Node '{node_name}' not found")
+        available_nodes = list(all_nodes.keys())
+        raise HTTPException(
+            status_code=404,
+            detail=f"Node '{node_name}' not found. Available nodes: {', '.join(available_nodes)}",
+        )
 
     try:
         # Validate that inputs contain all required parameters
@@ -179,7 +198,12 @@ async def run_node(node_name: str, request_data: NodeRunRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def start_server(host: str = "127.0.0.1", port: int = 8000, reload: bool = True):
+def start_server(
+    host: str = "127.0.0.1",
+    port: int = 8000,
+    reload: bool = True,
+    plugins_dir: str = "plugins/",
+):
     """
     Start the FastAPI server
 
@@ -187,7 +211,18 @@ def start_server(host: str = "127.0.0.1", port: int = 8000, reload: bool = True)
         host: Host to bind to
         port: Port to bind to
         reload: Enable auto-reload for development
+        plugins_dir: Directory to load plugins from
     """
+    # Reinitialize plugin loader with specified directory
+    global plugin_loader, all_plugins, all_nodes
+    plugin_loader = PluginLoader([plugins_dir])
+    all_plugins = plugin_loader.load_all_plugins()
+    all_nodes = plugin_loader.get_all_nodes()
+
+    print(f"🎯 Loaded {len(all_nodes)} nodes from {len(all_plugins)} plugins")
+    for node_name in all_nodes.keys():
+        print(f"  - {node_name}")
+
     uvicorn.run(
         "http_server.server:app", host=host, port=port, reload=reload, log_level="info"
     )
