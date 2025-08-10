@@ -1,11 +1,41 @@
 import inspect
-from typing import get_type_hints
+from typing import Any, Dict, get_type_hints
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel, validator
 
 from noxus_cli.plugin import SentimentPlugin
+
+
+class NodeRunRequest(BaseModel):
+    inputs: Dict[str, Any]
+
+
+def get_required_params(node) -> set:
+    """Get the required parameter names for a node's call method (excluding 'self')."""
+    sig = inspect.signature(node.call)
+    return {name for name, param in sig.parameters.items() if name != "self"}
+
+
+def validate_node_inputs(node, inputs: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Validate that inputs contain all required parameters for the node.
+    Returns the validated inputs dict.
+    """
+    required_params = get_required_params(node)
+    provided_params = set(inputs.keys())
+
+    # Check for missing parameters
+    missing_params = required_params - provided_params
+    if missing_params:
+        raise ValueError(f"Missing required parameters: {', '.join(missing_params)}")
+
+    # Extract only the parameters needed for the call method
+    validated_inputs = {param: inputs[param] for param in required_params}
+
+    return validated_inputs
 
 
 def get_node_inputs_json(node) -> str:
@@ -115,15 +145,38 @@ async def manifest():
 
 
 @app.post("/{node_name}/run")
-async def run_node(node_name: str):
+async def run_node(node_name: str, request_data: NodeRunRequest):
     """
-    POST endpoint to run a node
+    Execute a node by name with provided arguments
     """
+    # Get all available nodes
+    nodes = mock_backend.nodes() if hasattr(mock_backend, "nodes") else []
 
-    if node_name not in [node.name for node in mock_backend.nodes()]:
-        return {"message": f"Node {node_name} not found", "status": "error"}
-    else:
-        return {"message": f"Running node: {node_name}", "status": "success"}
+    # Find the node with matching name
+    target_node = None
+    for node in nodes:
+        if getattr(node, "name", None) == node_name:
+            target_node = node
+            break
+
+    if target_node is None:
+        raise HTTPException(status_code=404, detail=f"Node '{node_name}' not found")
+
+    try:
+        # Validate that inputs contain all required parameters
+        validated_inputs = validate_node_inputs(target_node, request_data.inputs)
+
+        # Call the node with validated inputs
+        result = target_node.call(**validated_inputs)
+
+        return {"result": result, "status": "success"}
+
+    except ValueError as e:
+        # Parameter validation error
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        # Execution error
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def start_server(host: str = "127.0.0.1", port: int = 8000, reload: bool = True):
