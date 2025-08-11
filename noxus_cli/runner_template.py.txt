@@ -1,0 +1,13 @@
+# type: ignore
+# This is a template file with placeholders, not valid Python code
+from http_server.server import start_server
+from {plugin_name} import {plugin_class_name}Plugin
+
+
+def run_{plugin_name}():
+    start_server(plugin={plugin_class_name}Plugin())
+
+
+if __name__ == "__main__":
+    run_{plugin_name}()
+
