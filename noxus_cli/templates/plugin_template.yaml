@@ -1,0 +1,6 @@
+# Plugin configuration
+name: {plugin_name}
+version: 0.1.0
+description: "A {plugin_name} plugin"
+entrypoint: run_{plugin_name}.py
+# extensions

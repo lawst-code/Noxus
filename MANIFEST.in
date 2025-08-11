@@ -1,3 +1,4 @@
 include README.md
 recursive-include noxus_cli *.py
 recursive-include noxus_cli *.yaml
+recursive-include noxus_cli *.txt
