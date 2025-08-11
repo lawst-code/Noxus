@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, List
 
 
 class Node(ABC):
@@ -41,3 +41,16 @@ class SentimentNode(Node):
     def call(self, arg1: str, arg2: str) -> Dict:
         # Plugin logic here
         return {"sentiment": "positive", "score": 0.8}
+
+
+def get_all_nodes(nodes: List[Node]) -> Dict[str, Node]:
+    all_nodes = {}
+    for node in nodes:
+        node_name = getattr(node, "name", None)
+        if node_name:
+            if node_name in all_nodes:
+                print(f" Warning: Duplicate node name '{node_name}' found")
+            all_nodes[node_name] = node
+            print(f"Registered node: {node_name}")
+
+    return all_nodes

@@ -6,7 +6,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from .plugin_loader import PluginLoader
+from domain.nodes import get_all_nodes
+from domain.plugins import Plugin, get_plugins_info
+
+
+# Setting up globals for the server
+all_plugins = []
+all_nodes = []
 
 
 class NodeRunRequest(BaseModel):
@@ -74,15 +80,6 @@ def get_node_inputs_json(node) -> str:
     return f'{{\n  "inputs": {{\n{inputs_content}\n  }}\n}}'
 
 
-# Initialize plugin loader and load all plugins
-plugin_loader = PluginLoader(["plugins/"])
-all_plugins = plugin_loader.load_all_plugins()
-all_nodes = plugin_loader.get_all_nodes()
-
-print(f"Loaded {len(all_nodes)} nodes from {len(all_plugins)} plugins")
-for node_name in all_nodes.keys():
-    print(f"  - {node_name}")
-
 # Initialize FastAPI app with OpenAPI documentation
 app = FastAPI(
     title="Noxus API",
@@ -119,7 +116,8 @@ async def root():
 @app.get("/manifest", response_class=HTMLResponse)
 async def manifest():
     """Dynamic manifest endpoint showing all loaded plugins and nodes"""
-    plugin_info = plugin_loader.get_plugin_info()
+    print(f"Plugin loaded: {all_plugins}")
+    plugin_info = get_plugins_info(all_plugins)
 
     plugins_html = ""
     for plugin in plugin_info:
@@ -158,7 +156,6 @@ async def manifest():
         </head>
         <body>
             <h1>Plugin Manifest</h1>
-            <p>Loaded {len(all_plugins)} plugins with {len(all_nodes)} total nodes</p>
             {plugins_html}
             <a href="/">Back to Home</a>
         </body>
@@ -201,8 +198,9 @@ async def run_node(node_name: str, request_data: NodeRunRequest):
 def start_server(
     host: str = "127.0.0.1",
     port: int = 8000,
-    reload: bool = True,
+    reload: bool = False,
     plugins_dir: str = "plugins/",
+    plugin: Plugin = None,
 ):
     """
     Start the FastAPI server
@@ -214,14 +212,13 @@ def start_server(
         plugins_dir: Directory to load plugins from
     """
     # Reinitialize plugin loader with specified directory
-    global plugin_loader, all_plugins, all_nodes
-    plugin_loader = PluginLoader([plugins_dir])
-    all_plugins = plugin_loader.load_all_plugins()
-    all_nodes = plugin_loader.get_all_nodes()
+    global all_plugins, all_nodes
+    print(f"Plugin loaded: {plugin}")
+    all_plugins = [plugin]
+    all_nodes = get_all_nodes(plugin.nodes())
 
-    print(f"Loaded {len(all_nodes)} nodes from {len(all_plugins)} plugins")
-    for node_name in all_nodes.keys():
-        print(f"  - {node_name}")
+    for name in all_nodes:
+        print(f"  - {name}")
 
     uvicorn.run(
         "http_server.server:app", host=host, port=port, reload=reload, log_level="info"
