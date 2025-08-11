@@ -160,7 +160,7 @@ async def manifest():
             <h1>Plugin Manifest</h1>
             <p>Loaded {len(all_plugins)} plugins with {len(all_nodes)} total nodes</p>
             {plugins_html}
-            <a href="/">← Back to Home</a>
+            <a href="/">Back to Home</a>
         </body>
     </html>
     """
@@ -219,7 +219,7 @@ def start_server(
     all_plugins = plugin_loader.load_all_plugins()
     all_nodes = plugin_loader.get_all_nodes()
 
-    print(f"🎯 Loaded {len(all_nodes)} nodes from {len(all_plugins)} plugins")
+    print(f"Loaded {len(all_nodes)} nodes from {len(all_plugins)} plugins")
     for node_name in all_nodes.keys():
         print(f"  - {node_name}")
 
