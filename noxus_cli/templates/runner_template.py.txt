@@ -1,5 +1,3 @@
-# type: ignore
-# This is a template file with placeholders, not valid Python code
 from http_server.server import start_server
 from {plugin_name} import {plugin_class_name}Plugin
 
