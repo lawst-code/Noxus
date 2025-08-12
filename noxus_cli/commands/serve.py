@@ -1,6 +1,3 @@
-import os
-from pathlib import Path
-
 from http_server.server import start_server
 
 from ..utils import load_plugin_from_yaml
