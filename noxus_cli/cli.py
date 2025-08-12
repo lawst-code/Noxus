@@ -1,5 +1,6 @@
 import argparse
 
+from .commands.build import build_command
 from .commands.init import init_command
 from .commands.serve import serve_command
 
@@ -23,6 +24,12 @@ def main():
     )
     serve_parser.add_argument("--plugin", help="Path to plugin YAML configuration file")
     serve_parser.set_defaults(func=serve_command)
+
+    # "build" command
+    build_parser = subparsers.add_parser(
+        "build", help="Build Docker files for the current plugin"
+    )
+    build_parser.set_defaults(func=build_command)
 
     args = parser.parse_args()
 

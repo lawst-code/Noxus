@@ -1,0 +1,27 @@
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the Noxus package (from parent directory)
+COPY .. .
+
+# Install the Noxus CLI package
+RUN pip install -e .
+
+# Copy the plugin files
+COPY . /app/plugin/
+
+# Set working directory to plugin
+WORKDIR /app/plugin
+
+# Expose the default port
+EXPOSE 8000
+
+# Command to serve the specific plugin
+CMD ["noxus", "serve", "--host", "0.0.0.0", "--port", "8000", "--plugin", "{plugin_name}/{yaml_file}"]

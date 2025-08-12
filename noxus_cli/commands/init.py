@@ -63,5 +63,5 @@ def init_command(args):
     print(f"  - run_{plugin_name}.py")
     print(f"  - {plugin_name}.yaml")
     print(
-        f"Plugin ready! Run 'noxus serve {plugin_name}/{plugin_name}.yaml' to start a test server."
+        f"Plugin ready! Run 'noxus serve --plugin {plugin_name}/{plugin_name}.yaml' to start a test server."
     )

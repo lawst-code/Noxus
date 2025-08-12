@@ -1,8 +1,18 @@
+import importlib.resources as resources
 import importlib.util
 import sys
 from pathlib import Path
 
 import yaml
+
+
+def get_template_content(template_name: str) -> str:
+    """Get content from a template file in the noxus_cli package."""
+    try:
+        return (resources.files("noxus_cli") / "templates" / template_name).read_text()
+    except Exception as e:
+        print(f"Error reading template file {template_name}: {e}")
+        return ""
 
 
 def load_plugin_from_yaml(yaml_path: str):
