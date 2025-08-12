@@ -41,14 +41,6 @@ def init_command(args):
         with open(plugin_py_file, "w") as f:
             f.write(plugin_py_content)
 
-    # Create runner script
-    runner_template = get_template_content("runner_template.py.txt")
-    if runner_template:
-        runner_content = runner_template.format(**formats)
-        runner_file = plugin_dir / f"run_{plugin_name}.py"
-        with open(runner_file, "w") as f:
-            f.write(runner_content)
-
     # Create YAML configuration file
     yaml_template = get_template_content("plugin_template.yaml")
     if yaml_template:
@@ -60,7 +52,6 @@ def init_command(args):
     print(f"Created plugin directory: {plugin_dir}")
     print("Created files:")
     print(f"  - {plugin_name}.py")
-    print(f"  - run_{plugin_name}.py")
     print(f"  - {plugin_name}.yaml")
     print(
         f"Plugin ready! Run 'noxus serve --plugin {plugin_name}/{plugin_name}.yaml' to start a test server."
