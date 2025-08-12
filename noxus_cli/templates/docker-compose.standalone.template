@@ -3,8 +3,8 @@ version: '3.8'
 services:
   {plugin_name}-server:
     build:
-      context: ..
-      dockerfile: {plugin_name}/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     restart: unless-stopped

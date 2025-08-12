@@ -49,10 +49,19 @@ def init_command(args):
         with open(yaml_file, "w") as f:
             f.write(yaml_content)
 
+    # Create pyproject.toml for standalone deployment
+    pyproject_template = get_template_content("pyproject.toml.template")
+    if pyproject_template:
+        pyproject_content = pyproject_template.format(**formats)
+        pyproject_file = plugin_dir / "pyproject.toml"
+        with open(pyproject_file, "w") as f:
+            f.write(pyproject_content)
+
     print(f"Created plugin directory: {plugin_dir}")
     print("Created files:")
     print(f"  - {plugin_name}.py")
     print(f"  - {plugin_name}.yaml")
+    print(f"  - pyproject.toml")
     print(
         f"Plugin ready! Run 'noxus serve --plugin {plugin_name}/{plugin_name}.yaml' to start a test server."
     )

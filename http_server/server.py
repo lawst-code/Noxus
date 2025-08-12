@@ -9,7 +9,6 @@ from pydantic import BaseModel
 from domain.nodes import get_all_nodes
 from domain.plugins import Plugin, get_plugins_info
 
-
 # Setting up globals for the server
 all_plugins = []
 all_nodes = []

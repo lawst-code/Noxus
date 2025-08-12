@@ -1,0 +1,34 @@
+#!/bin/bash
+# Deployment script for {plugin_name} plugin
+
+set -e
+
+# Configuration
+PROJECT_ID=$(gcloud config set project noxus-one)
+REGION="europe-west1"
+SERVICE_NAME="{plugin_name}-server"
+IMAGE_NAME="gcr.io/$PROJECT_ID/{plugin_name}"
+
+echo "Deploying {plugin_name} to GCP..."
+echo "Project: $PROJECT_ID"
+echo "Region: $REGION"
+echo "Service: $SERVICE_NAME"
+
+# Build and push the Docker image
+echo "Building and pushing Docker image..."
+gcloud builds submit --tag $IMAGE_NAME .
+
+# Deploy to Cloud Run
+echo "Deploying to Cloud Run..."
+gcloud run deploy $SERVICE_NAME \\
+    --image $IMAGE_NAME \\
+    --platform managed \\
+    --region $REGION \\
+    --allow-unauthenticated \\
+    --port 8000 \\
+    --memory 512Mi \\
+    --cpu 1 \\
+    --max-instances 1
+
+echo "Deployment complete!"
+echo "Service URL: $(gcloud run services describe $SERVICE_NAME --region=$REGION --format='value(status.url)')"
