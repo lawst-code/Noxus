@@ -115,7 +115,7 @@ async def root():
 
 @app.get("/manifest", response_class=HTMLResponse)
 async def manifest():
-    """Dynamic manifest endpoint showing all loaded plugins and nodes"""
+    """Dynamic manifest endpoint showing loaded plugin and nodes"""
     print(f"Plugin loaded: {all_plugins}")
     plugin_info = get_plugins_info(all_plugins)
 
@@ -199,19 +199,17 @@ def start_server(
     host: str = "127.0.0.1",
     port: int = 8000,
     reload: bool = False,
-    plugins_dir: str = "plugins/",
     plugin: Plugin = None,
 ):
     """
-    Start the FastAPI server
+    Start the server
 
     Args:
         host: Host to bind to
         port: Port to bind to
         reload: Enable auto-reload for development
-        plugins_dir: Directory to load plugins from
+        plugin: Single plugin to load
     """
-    # Reinitialize plugin loader with specified directory
     global all_plugins, all_nodes
     print(f"Plugin loaded: {plugin}")
     all_plugins = [plugin]
