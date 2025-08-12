@@ -59,10 +59,10 @@ def build_command(args):
         with open(compose_path, "w") as f:
             f.write(compose_content)
 
-        print(f"Created Docker files:")
-        print(f"  - Dockerfile")
+        print("Created Docker files:")
+        print("  - Dockerfile")
         print(f"  - {compose_path.name}")
-        print(f"\nTo build and run:")
+        print("\nTo build and run:")
         print(f"  docker-compose -f {compose_path.name} up --build")
 
     except Exception as e:
