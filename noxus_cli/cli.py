@@ -21,6 +21,7 @@ def main():
     serve_parser.add_argument(
         "--port", type=int, default=8000, help="Port to bind to (default: 8000)"
     )
+    serve_parser.add_argument("--plugin", help="Path to plugin YAML configuration file")
     serve_parser.set_defaults(func=serve_command)
 
     args = parser.parse_args()
