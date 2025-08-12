@@ -17,7 +17,17 @@ pip install -e .
 
 ```bash
 # Initialize a new plugin
-python noxus.py init my-plugin-name
+noxus init my-plugin-name
+
+# Run locally (no container) 
+noxus serve --plugin my-plugin-name/my-plugin-name.yaml
+
+# Run locally (containerized) 
+cd /my-plugin-name
+docker-compose -f docker-compose.my-plugin-name.standalone.yml up --build
+
+
+
 
 # Show help
 python noxus.py --help

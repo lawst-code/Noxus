@@ -90,7 +90,7 @@ def build_command(args):
             if deploy_sh_template:
                 print("  ./deploy.sh")
             if deploy_bat_template:
-                print("  deploy.bat")
+                print("  ./deploy.bat")
 
     except Exception as e:
         print(f"Error building Docker files: {e}")
